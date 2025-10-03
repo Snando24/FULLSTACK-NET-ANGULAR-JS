@@ -1,0 +1,391 @@
+<!-- Header Institucional -->
+<div class="header-institucional">
+  <div class="header-content">
+    <div class="logo-section">
+      <div class="logo-icon">
+        <i class="fas fa-building"></i>
+      </div>
+      <div class="company-info">
+        <h1>FULLSTACK NET – ANGULAR JS</h1>
+        <p>Sistema de Gestión Empresarial</p>
+      </div>
+    </div>
+    <div class="user-section">
+      <div class="user-info">
+        <div class="user-name">Administrador</div>
+        <div class="user-role">Sistema de Clientes</div>
+      </div>
+      <div class="user-avatar">
+        <i class="fas fa-user"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Alertas -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    {{ successMessage }}
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Controles de búsqueda y acción -->
+  <div class="row mb-4">
+    <div class="col-lg-8 col-md-12 mb-3 mb-lg-0">
+      <div class="search-container">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input 
+            type="text" 
+            class="form-control form-control-lg" 
+            placeholder="Buscar por RUC o Razón Social..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+            [class.is-invalid]="searchError"
+          >
+          <button 
+            class="btn btn-outline-secondary" 
+            type="button" 
+            (click)="clearSearch()"
+            [disabled]="!searchTerm"
+            title="Limpiar búsqueda"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div *ngIf="searchError" class="invalid-feedback d-block">
+          {{ searchError }}
+        </div>
+        <div *ngIf="isSearching" class="search-indicator">
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          Buscando...
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-12 text-lg-end text-center">
+      <button class="btn btn-primary btn-lg w-100 w-lg-auto" (click)="showAddForm()">
+        <i class="fas fa-plus me-2"></i>
+        <span class="d-none d-sm-inline">Nuevo Cliente</span>
+        <span class="d-inline d-sm-none">Nuevo</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Controles de ordenamiento y estado -->
+  <div class="row mb-3">
+    <div class="col-lg-6 col-md-12 mb-3 mb-lg-0">
+      <div class="d-flex gap-2 flex-column flex-sm-row">
+        <select 
+          class="form-select" 
+          [(ngModel)]="sortBy" 
+          (change)="onSortChange()"
+          title="Seleccionar campo para ordenar"
+        >
+          <option value="">Ordenar por...</option>
+          <option value="ruc">RUC</option>
+          <option value="razonSocial">Razón Social</option>
+          <option value="telefono">Teléfono</option>
+          <option value="correo">Correo</option>
+          <option value="direccion">Dirección</option>
+        </select>
+        <button 
+          class="btn btn-outline-info" 
+          (click)="toggleSortOrder()"
+          [title]="sortOrder === 'asc' ? 'Orden ascendente' : 'Orden descendente'"
+        >
+          <i class="fas" [class.fa-sort-alpha-down]="sortOrder === 'asc'" [class.fa-sort-alpha-up]="sortOrder === 'desc'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-12 text-lg-end text-center">
+      <div class="d-flex justify-content-lg-end justify-content-center gap-2 flex-wrap">
+        <span class="badge">{{ filteredClientes.length }} cliente(s) encontrado(s)</span>
+        <button 
+          class="btn btn-outline-secondary" 
+          (click)="refreshData()"
+          title="Actualizar datos"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de clientes -->
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="d-none d-md-table-cell">RUC</th>
+          <th>Razón Social</th>
+          <th class="d-none d-lg-table-cell">Teléfono</th>
+          <th class="d-none d-xl-table-cell">Correo</th>
+          <th class="d-none d-xl-table-cell">Dirección</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cliente of filteredClientes; trackBy: trackByRuc" 
+            (click)="showDetailsModal(cliente)" 
+            style="cursor: pointer;">
+          <td class="d-none d-md-table-cell">
+            <span class="ruc-text" [innerHTML]="highlightSearch(cliente.ruc)"></span>
+          </td>
+          <td>
+            <div class="d-flex flex-column">
+              <span class="razon-social-text" [innerHTML]="highlightSearch(cliente.razonSocial)"></span>
+              <small class="text-muted d-md-none">{{ cliente.ruc }}</small>
+            </div>
+          </td>
+          <td class="d-none d-lg-table-cell">{{ cliente.telefono || '-' }}</td>
+          <td class="d-none d-xl-table-cell">{{ cliente.correo || '-' }}</td>
+          <td class="d-none d-xl-table-cell">{{ cliente.direccion || '-' }}</td>
+          <td class="text-center">
+            <div class="btn-group" role="group">
+              <button class="btn btn-sm btn-warning" (click)="editCliente(cliente); $event.stopPropagation()" title="Editar cliente">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteCliente(cliente.ruc); $event.stopPropagation()" title="Eliminar cliente">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Estado vacío -->
+  <div *ngIf="clientes.length === 0 && !loading" class="text-center mt-4">
+    <div class="empty-state">
+      <i class="fas fa-users fa-3x text-muted mb-3"></i>
+      <h4 class="text-muted">No hay clientes registrados</h4>
+      <p class="text-muted">Comienza agregando tu primer cliente</p>
+      <button class="btn btn-primary" (click)="showAddForm()">
+        <i class="fas fa-plus me-2"></i>
+        Agregar Cliente
+      </button>
+    </div>
+  </div>
+
+  <!-- Sin resultados de búsqueda -->
+  <div *ngIf="clientes.length > 0 && filteredClientes.length === 0 && !loading" class="text-center mt-4">
+    <div class="no-results">
+      <i class="fas fa-search fa-3x text-muted mb-3"></i>
+      <h4 class="text-muted">No se encontraron resultados</h4>
+      <p class="text-muted">Intenta con otros términos de búsqueda</p>
+      <button class="btn btn-outline-secondary" (click)="clearSearch()">
+        <i class="fas fa-times me-2"></i>
+        Limpiar búsqueda
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center mt-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-2 text-muted">Cargando clientes...</p>
+  </div>
+</div>
+
+<!-- Modal de Cliente -->
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas" [class.fa-plus]="!isEdit" [class.fa-edit]="isEdit"></i>
+          {{ isEdit ? 'Editar Cliente' : 'Nuevo Cliente' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form #clienteForm="ngForm">
+          <div *ngIf="modalError" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ modalError }}
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="ruc" class="form-label">
+                RUC <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="ruc"
+                [(ngModel)]="clienteData.ruc" 
+                name="ruc"
+                [class.is-invalid]="fieldErrors.ruc"
+                (input)="onRucInput()"
+                [readonly]="isEdit"
+                placeholder="Ingrese el RUC (11 dígitos)"
+                maxlength="11"
+              >
+              <div *ngIf="fieldErrors.ruc" class="invalid-feedback">
+                <div *ngIf="isRucError('required')" class="ruc-error-message">
+                  El RUC es obligatorio
+                </div>
+                <div *ngIf="isRucError('length')" class="ruc-error-message">
+                  El RUC debe tener exactamente 11 dígitos
+                </div>
+                <div *ngIf="isRucError('letters')" class="ruc-error-message">
+                  El RUC solo puede contener números
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="razonSocial" class="form-label">
+                Razón Social <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="razonSocial"
+                [(ngModel)]="clienteData.razonSocial" 
+                name="razonSocial"
+                [class.is-invalid]="fieldErrors.razonSocial"
+                (blur)="validateField('razonSocial')"
+                placeholder="Ingrese la razón social"
+                maxlength="200"
+              >
+              <div *ngIf="fieldErrors.razonSocial" class="invalid-feedback">
+                La razón social es obligatoria
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="telefono" class="form-label">Teléfono</label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="telefono"
+                [(ngModel)]="clienteData.telefono" 
+                name="telefono"
+                [class.is-invalid]="fieldErrors.telefono"
+                (blur)="validateField('telefono')"
+                placeholder="Ingrese el teléfono"
+                maxlength="20"
+              >
+              <div *ngIf="fieldErrors.telefono" class="invalid-feedback">
+                Formato de teléfono inválido
+              </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="correo" class="form-label">Correo Electrónico</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="correo"
+                [(ngModel)]="clienteData.correo" 
+                name="correo"
+                [class.is-invalid]="fieldErrors.correo"
+                (blur)="validateField('correo')"
+                placeholder="Ingrese el correo electrónico"
+                maxlength="100"
+              >
+              <div *ngIf="fieldErrors.correo" class="invalid-feedback">
+                Formato de correo electrónico inválido
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="direccion" class="form-label">Dirección</label>
+            <textarea 
+              class="form-control" 
+              id="direccion"
+              [(ngModel)]="clienteData.direccion" 
+              name="direccion"
+              rows="3"
+              placeholder="Ingrese la dirección"
+              maxlength="300"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          <i class="fas fa-times me-1"></i>
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="saveCliente()"
+          [disabled]="!clienteForm.form.valid || saving"
+        >
+          <span *ngIf="saving" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isEdit ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalles del Cliente -->
+<div class="modal fade" [class.show]="showDetails" [style.display]="showDetails ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-building me-2"></i>
+          Detalles del Cliente
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="selectedCliente" class="cliente-details">
+          <div class="detail-item">
+            <label class="detail-label">RUC:</label>
+            <span class="detail-value">{{ selectedCliente.ruc }}</span>
+          </div>
+          <div class="detail-item">
+            <label class="detail-label">Razón Social:</label>
+            <span class="detail-value">{{ selectedCliente.razonSocial }}</span>
+          </div>
+          <div class="detail-item">
+            <label class="detail-label">Teléfono:</label>
+            <span class="detail-value">{{ selectedCliente.telefono || 'No especificado' }}</span>
+          </div>
+          <div class="detail-item">
+            <label class="detail-label">Correo:</label>
+            <span class="detail-value">{{ selectedCliente.correo || 'No especificado' }}</span>
+          </div>
+          <div class="detail-item">
+            <label class="detail-label">Dirección:</label>
+            <span class="detail-value">{{ selectedCliente.direccion || 'No especificado' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDetailsModal()">
+          <i class="fas fa-times me-1"></i>
+          Cerrar
+        </button>
+        <button type="button" class="btn btn-warning" (click)="editFromDetails()">
+          <i class="fas fa-edit me-1"></i>
+          Editar
+        </button>
+        <button type="button" class="btn btn-danger" (click)="deleteFromDetails()">
+          <i class="fas fa-trash me-1"></i>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
