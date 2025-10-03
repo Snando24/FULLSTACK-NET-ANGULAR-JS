@@ -198,14 +198,14 @@ El frontend estará disponible en: http://localhost:4201
 ```
 FULLSTACK/
 ├── frontend/
+│   ├── README.md                        # Documentación técnica del frontend
 │   └── cliente-app/
 │       ├── src/
 │       │   ├── app/
 │       │   │   ├── components/          # Componentes Angular
 │       │   │   ├── constants/           # Constantes de la app
 │       │   │   ├── models/              # Interfaces TypeScript
-│       │   │   ├── services/            # Servicios Angular
-│       │   │   └── README.md            # Documentación frontend
+│       │   │   └── services/            # Servicios Angular
 │       │   ├── styles.scss              # Estilos globales
 │       │   └── index.html
 │       ├── package.json
@@ -393,6 +393,11 @@ npm start
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 📚 Documentación Adicional
+
+- **[Arquitectura del Frontend](frontend/README.md)**: Documentación técnica detallada del frontend Angular
+- **Swagger API**: `http://localhost:4200/swagger` - Documentación interactiva de la API
 
 ## 📞 Soporte
 

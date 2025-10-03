@@ -1,24 +1,33 @@
 # Arquitectura del Frontend - Sistema de Gestión de Clientes
 
+> **Nota**: Para información general del proyecto, instalación y ejecución, consulta el [README principal](../README.md)
+
 ## Estructura del Proyecto
 
 ```
-src/app/
-├── components/           # Componentes Angular
-│   ├── cliente-list.component.html
-│   ├── cliente-list.component.scss
-│   └── cliente-list.component.ts
-├── constants/           # Constantes de la aplicación
-│   └── app.constants.ts
-├── models/              # Interfaces y tipos TypeScript
-│   ├── cliente.model.ts
-│   └── index.ts
-├── services/            # Servicios Angular
-│   ├── cliente.service.ts
-│   ├── validation.service.ts
-│   ├── utils.service.ts
-│   └── index.ts
-└── README.md           # Este archivo
+cliente-app/
+├── src/
+│   └── app/
+│       ├── components/           # Componentes Angular
+│       │   ├── cliente-list.component.html
+│       │   ├── cliente-list.component.scss
+│       │   └── cliente-list.component.ts
+│       ├── constants/           # Constantes de la aplicación
+│       │   └── app.constants.ts
+│       ├── models/              # Interfaces y tipos TypeScript
+│       │   ├── cliente.model.ts
+│       │   └── index.ts
+│       ├── services/            # Servicios Angular
+│       │   ├── cliente.service.ts
+│       │   ├── validation.service.ts
+│       │   ├── utils.service.ts
+│       │   └── index.ts
+│       ├── app.component.ts     # Componente raíz
+│       ├── app.config.ts        # Configuración de la aplicación
+│       └── app.routes.ts        # Configuración de rutas
+├── package.json                 # Dependencias y scripts
+├── angular.json                 # Configuración de Angular CLI
+└── tsconfig.json               # Configuración de TypeScript
 ```
 
 ## Principios Aplicados
@@ -130,3 +139,38 @@ src/app/
 - **Reutilizable**: Servicios pueden ser usados en otros componentes
 - **Mantenible**: Código bien organizado y documentado
 - **Extensible**: Fácil agregar nuevas funcionalidades
+
+## Comandos de Desarrollo
+
+### Instalación
+```bash
+cd frontend/cliente-app
+npm install
+```
+
+### Desarrollo
+```bash
+npm start
+```
+
+### Construcción
+```bash
+npm run build
+```
+
+### Testing
+```bash
+npm test
+```
+
+## Configuración
+
+### Variables de Entorno
+- **API_URL**: Configurada en `src/app/constants/app.constants.ts`
+- **Puerto**: Configurado en `angular.json` (puerto 4201)
+
+### Dependencias Principales
+- **Angular 19**: Framework principal
+- **Bootstrap 5**: Framework CSS
+- **Font Awesome**: Iconografía
+- **RxJS**: Programación reactiva
